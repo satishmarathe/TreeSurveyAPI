@@ -12,6 +12,8 @@ public interface SurveyService {
     Survey getSurveyDetails(String city,String country,LocalDateTime now) ;
     
     public List<Survey> getSurveys();
+    
+    public boolean createSurvey(Survey survey);
 
     
 }

@@ -38,6 +38,11 @@ public class SurveyServiceImpl implements SurveyService {
         return surveyRepository.getSurveys();
     }
     
+    @Override
+    public boolean createSurvey(Survey survey) {
+        surveyRepository.createSurvey(survey);
+        return true;
+    }
     
 
     
