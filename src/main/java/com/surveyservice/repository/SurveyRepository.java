@@ -23,7 +23,7 @@ public interface SurveyRepository {
     
     boolean update(Survey survey,String experiment,String site);
     
-    Survey save(Survey survey,String experiment,String site);
+    public boolean createSurvey(Survey survey);
     
     
     List<Survey> getSurveys();

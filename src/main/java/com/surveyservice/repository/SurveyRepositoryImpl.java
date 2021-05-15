@@ -16,6 +16,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.surveyservice.model.Survey;
 
@@ -44,8 +45,6 @@ public class SurveyRepositoryImpl implements SurveyRepository {
                 (rs, rowNum) -> {
                     Survey w = new Survey();
                     w.setTreeId(rs.getString("tree_id"));
-                    w.setCreatedDate(rs.getTimestamp("created_date").toLocalDateTime());
-
                     return w;
                 });
             return survey;
@@ -58,12 +57,26 @@ public class SurveyRepositoryImpl implements SurveyRepository {
 
     public List<Survey> getSurveys() {
         logger.log(Level.INFO, "getSurveys START");
-        return jdbcTemplate.query("SELECT * FROM survey_data",
+        return jdbcTemplate.query("select tm.tree_id,tm.location_id ,tm.plant_date ,tm.species ,tm.treatment ,s.inspection_date ,"
+            + "s.health_score ,s.pathogen_count ,s.woodborer_count ,s.notes \r\n" + 
+            "from tree_survey.tree_master tm,tree_survey.survey s\r\n" + 
+            "where tm.tree_id = s.tree_id;",
             (rs, rowNumber) -> {
                 logger.log(Level.INFO, "got something");
                 Survey survey = new Survey();
                 survey.setTreeId(rs.getString("tree_id"));
+                survey.setLocation(rs.getString("location_id"));
+                survey.setPlantDate(rs.getDate("plant_date"));
                 survey.setSpecies(rs.getString("species"));
+                survey.setTreatment(rs.getString("treatment"));
+                survey.setInspectionDate(rs.getDate("inspection_date"));
+                survey.setHealthScore(rs.getInt("health_score"));
+                survey.setPathogenFound(rs.getInt("pathogen_count"));
+                survey.setWoodBorerFound(rs.getInt("woodborer_count"));
+                survey.setNotes(rs.getString("notes"));
+                
+                
+                
                 logger.log(Level.INFO, "details from db {}",survey);
                 return survey;
             });
@@ -77,15 +90,21 @@ public class SurveyRepositoryImpl implements SurveyRepository {
     }
 
     @Override
-    public Survey save(Survey survey,String experiment,String site) {
-        return null;
-    }
-
-
-
-
-
-
-
-
+    public boolean createSurvey(Survey survey) {
+        logger.log(Level.INFO, "createSurvey START");
+        logger.log(Level.INFO, "createSurvey pojo = {}",survey);
+       int response =  jdbcTemplate.update(
+            "INSERT INTO tree_master VALUES (?, ?, ?, ?,?)", survey.getTreeId(),survey.getLocation(), survey.getPlantDate(),
+            survey.getSpecies(),survey.getTreatment());
+       
+       logger.log(Level.INFO, "after db insert result = {}",response);
+       
+       if(response == 1) {
+           response = jdbcTemplate.update(
+               "INSERT INTO survey VALUES (?, ?, ?, ?,?,?)", survey.getTreeId(),survey.getInspectionDate(), survey.getHealthScore(),
+               survey.getPathogenFound(),survey.getWoodBorerFound(),survey.getNotes());
+       }
+       return true;
+    }   
+    
 }
