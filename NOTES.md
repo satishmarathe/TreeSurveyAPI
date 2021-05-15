@@ -11,3 +11,15 @@ spring.datasource.url=jdbc:postgresql://localhost:5433/postgres?currentSchema=tr
 
 Notice that we have appended 'currentSchema' at the end !
 Reference:https://stackoverflow.com/questions/39430422/how-to-properly-specify-database-schema-in-spring-boot
+
+##4 Posted data from UI not populating POJO
+This is the place where we need to use @RequestBody annotation which will ensure that spring boot will use Jackson to bind
+ui sent json payload to our Java POJO
+
+```java
+	@CrossOrigin   
+    @PostMapping("/api/v1/surveys")
+    public ResponseEntity<?>  createSurvey(@RequestBody Survey survey) {
+```
+
+
